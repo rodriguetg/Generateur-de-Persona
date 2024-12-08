@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prévisualisation du Persona</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #f8f9fa;
+            --text-color: #2c3e50;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .persona-card {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 10px;
+            color: white;
+        }
+
+        .profile-pic {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 5px solid white;
+            margin-right: 30px;
+        }
+
+        .profile-info h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            border-left: 5px solid var(--secondary-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 5px 15px;
+            margin: 5px;
+            background-color: var(--secondary-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.9em;
+        }
+
+        .progress {
+            height: 10px;
+            margin: 10px 0;
+        }
+
+        .btn-custom {
+            background: var(--secondary-color);
+            color: white;
+            padding: 10px 25px;
+            border-radius: 25px;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .list-custom {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .list-custom li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .list-custom li:last-child {
+            border-bottom: none;
+        }
+
+        .badge-custom {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="persona-card">
+            <div class="profile-header">
+                {% if persona.photo %}
+                <img src="{{ persona.photo }}" alt="Photo de profil" class="profile-pic">
+                {% endif %}
+                <div class="profile-info">
+                    <h1>{{ persona.name }}</h1>
+                    <p class="mb-0">{{ persona.age }} ans | {{ persona.ville }}</p>
+                    <p class="mb-0">{{ persona.poste }} | {{ persona.sector }}</p>
+                </div>
+            </div>
+
+            <form action="/download_pdf" method="post">
+                {% for key, value in persona.items() %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endfor %}
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="section">
+                            <h3 class="section-title"><i class="fas fa-user"></i>Informations Personnelles</h3>
+                            <ul class="list-custom">
+                                <li><strong>Situation:</strong> {{ persona.situation }}</li>
+                                <li><strong>Formation:</strong> {{ persona.etudes }}</li>
+                                <li><strong>Expérience:</strong> {{ persona.experience }} ans</li>
+                                <li><strong>Budget:</strong> {{ persona.budget }}</li>
+                            </ul>
+                        </div>
+
+                        <div class="section">
+                            <h3 class="section-title"><i class="fas fa-shopping-bag"></i>Habitudes d'Achat</h3>
+                            <ul class="list-custom">
+                                <li><strong>Lieu préféré:</strong> {{ persona.lieu_preference.type }}</li>
+                                <li><strong>Moment:</strong> {{ persona.moment_preference }}</li>
+                                <li><strong>Fréquence:</strong> {{ persona.frequence_achat }}</li>
+                            </ul>
+                            <h4>Moyens de paiement préférés:</h4>
+                            <div class="mb-3">
+                                {% for moyen in persona.moyens_paiement %}
+                                <span class="tag">{{ moyen }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="section">
+                            <h3 class="section-title"><i class="fas fa-star"></i>Critères de Décision</h3>
+                            <ul class="list-custom">
+                                {% for critere in persona.criteres_decision %}
+                                <li>
+                                    <strong>{{ critere.critere }}:</strong>
+                                    <span class="badge-custom">{{ critere.importance }}</span>
+                                </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+
+                        <div class="section">
+                            <h3 class="section-title"><i class="fas fa-bullhorn"></i>Canaux d'Influence</h3>
+                            {% for categorie, canaux in persona.canaux_influence.items() %}
+                            <h4>{{ categorie }}:</h4>
+                            <div class="mb-3">
+                                {% for canal in canaux %}
+                                <span class="tag">{{ canal }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-shopping-cart"></i>Objectifs d'Achat</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4>Court terme (0-3 mois):</h4>
+                            <ul class="list-custom">
+                                {% for obj in persona.objectifs_court_terme %}
+                                <li>{{ obj }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>Moyen terme (3-12 mois):</h4>
+                            <ul class="list-custom">
+                                {% for obj in persona.objectifs_moyen_terme %}
+                                <li>{{ obj }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div class="col-md-4">
+                            <h4>Long terme (12+ mois):</h4>
+                            <ul class="list-custom">
+                                {% for obj in persona.objectifs_long_terme %}
+                                <li>{{ obj }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3 class="section-title"><i class="fas fa-exclamation-triangle"></i>Freins à l'Achat</h3>
+                    <ul class="list-custom">
+                        {% for frein in persona.freins_achat %}
+                        <li>{{ frein }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-custom me-2">
+                        <i class="fas fa-download me-2"></i>Télécharger en PDF
+                    </button>
+                    <a href="/" class="btn btn-custom">
+                        <i class="fas fa-sync-alt me-2"></i>Générer un nouveau persona
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
