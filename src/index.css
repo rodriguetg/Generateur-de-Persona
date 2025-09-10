@@ -4,28 +4,87 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-primary font-sans;
+    @apply bg-gray-50 dark:bg-gray-900 text-primary dark:text-white font-sans transition-colors duration-300;
+  }
+  
+  html {
+    scroll-behavior: smooth;
   }
 }
 
 @layer components {
   .btn-primary {
-    @apply bg-secondary text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-primary hover:-translate-y-0.5 hover:shadow-lg;
+    @apply bg-secondary text-white px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-primary hover:-translate-y-0.5 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-secondary focus:ring-opacity-50;
   }
   
   .btn-secondary {
-    @apply bg-gray-200 text-primary px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-gray-300;
+    @apply bg-gray-200 text-primary px-6 py-3 rounded-lg font-semibold transition-all duration-300 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50;
   }
   
   .card {
-    @apply bg-white rounded-xl shadow-sm border border-gray-100;
+    @apply bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300;
   }
   
   .section-title {
-    @apply text-xl font-bold text-primary mb-4 flex items-center;
+    @apply text-xl font-bold text-primary dark:text-white mb-4 flex items-center;
   }
   
   .tag {
-    @apply inline-block px-3 py-1 bg-secondary text-white rounded-full text-sm mr-2 mb-2;
+    @apply inline-block px-3 py-1 bg-secondary text-white rounded-full text-sm mr-2 mb-2 transition-all duration-200 hover:bg-primary;
+  }
+
+  /* Accessibility improvements */
+  .focus-visible {
+    @apply outline-none ring-2 ring-secondary ring-opacity-50;
+  }
+
+  /* Responsive text */
+  .text-responsive {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+
+  /* Loading animation */
+  .animate-pulse-slow {
+    animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes pulse-slow {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: .8;
+    }
+  }
+}
+
+/* Dark mode specific improvements */
+@media (prefers-color-scheme: dark) {
+  .dark-auto {
+    @apply dark:bg-gray-900 dark:text-white;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .btn-primary {
+    @apply border-2 border-white;
+  }
+  
+  .card {
+    @apply border-2 border-gray-400 dark:border-gray-600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary {
+    @apply hover:transform-none;
+  }
+  
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

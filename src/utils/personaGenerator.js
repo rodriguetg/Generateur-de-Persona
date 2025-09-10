@@ -98,12 +98,58 @@ const frequences = [
   'Trimestriellement', 'Semestriellement', 'Annuellement'
 ]
 
-export const generatePersona = () => {
+// Fonction pour générer un avatar avec l'API Pollination
+const generateAIAvatar = async () => {
+  try {
+    const gender = faker.person.sexType()
+    const age = faker.number.int({ min: 22, max: 65 })
+    
+    // Utilisation de l'API Pollination gratuite pour générer des avatars
+    const prompt = `professional headshot photo of a ${age} year old ${gender === 'male' ? 'man' : 'woman'}, business attire, linkedin style, high quality, realistic`
+    
+    const response = await fetch('https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt), {
+      method: 'GET'
+    })
+    
+    if (response.ok) {
+      return response.url
+    } else {
+      // Fallback vers randomuser si l'API Pollination ne fonctionne pas
+      return `https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/portraits/${gender === 'male' ? 'men' : 'women'}/${faker.number.int({ min: 1, max: 99 })}.jpg`
+    }
+  } catch (error) {
+    // Fallback en cas d'erreur
+    const gender = faker.person.sexType()
+    return `https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/portraits/${gender === 'male' ? 'men' : 'women'}/${faker.number.int({ min: 1, max: 99 })}.jpg`
+  }
+}
+
+export const generatePersona = async (filters = {}) => {
   const gender = faker.person.sexType()
   const firstName = faker.person.firstName(gender)
   const lastName = faker.person.lastName()
-  const age = faker.number.int({ min: 22, max: 65 })
   
+  // Appliquer les filtres d'âge
+  let age
+  if (filters.ageRange) {
+    const [min, max] = filters.ageRange.split('-').map(Number)
+    age = faker.number.int({ min, max })
+  } else {
+    age = faker.number.int({ min: 22, max: 65 })
+  }
+
+  // Appliquer les filtres de budget
+  let budget
+  if (filters.budget === 'low') {
+    budget = `${faker.number.int({ min: 1500, max: 2999 })}€/mois`
+  } else if (filters.budget === 'medium') {
+    budget = `${faker.number.int({ min: 3000, max: 5999 })}€/mois`
+  } else if (filters.budget === 'high') {
+    budget = `${faker.number.int({ min: 6000, max: 12000 })}€/mois`
+  } else {
+    budget = `${faker.number.int({ min: 2000, max: 8000 })}€/mois`
+  }
+
   // Générer des critères de décision avec importance
   const selectedCriteres = faker.helpers.arrayElements(criteresDecision, { min: 4, max: 6 })
     .map(critere => ({
@@ -120,17 +166,20 @@ export const generatePersona = () => {
     )
   })
 
+  // Générer l'avatar avec l'IA
+  const photo = await generateAIAvatar()
+
   return {
     name: `${firstName} ${lastName}`,
     age: age,
-    ville: faker.helpers.arrayElement(villes),
+    ville: filters.location || faker.helpers.arrayElement(villes),
     poste: faker.helpers.arrayElement(postes),
-    sector: faker.helpers.arrayElement(secteurs),
+    sector: filters.sector || faker.helpers.arrayElement(secteurs),
     situation: faker.helpers.arrayElement(situations),
     etudes: faker.helpers.arrayElement(etudes),
     experience: faker.number.int({ min: 1, max: 25 }),
-    budget: `${faker.number.int({ min: 2000, max: 8000 })}€/mois`,
-    photo: `https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/portraits/${gender === 'male' ? 'men' : 'women'}/${faker.number.int({ min: 1, max: 99 })}.jpg`,
+    budget: budget,
+    photo: photo,
     marques_preferees: faker.helpers.arrayElements(marques, { min: 3, max: 6 }),
     lieu_preference: faker.helpers.arrayElement(lieux),
     moment_preference: faker.helpers.arrayElement(moments),
