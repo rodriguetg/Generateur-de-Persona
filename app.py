@@ -423,7 +423,7 @@ def generer_persona_aleatoire():
 
     # Ajout de la photo
     try:
-        response = requests.get('https://randomuser.me/api/')
+        response = requests.get('https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/')
         if response.status_code == 200:
             photo_url = response.json()['results'][0]['picture']['large']
             photo_response = requests.get(photo_url)
