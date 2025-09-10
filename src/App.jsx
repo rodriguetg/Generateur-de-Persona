@@ -4,51 +4,26 @@ import HomePage from './components/HomePage'
 import PersonaPreview from './components/PersonaPreview'
 import OnboardingModal from './components/OnboardingModal'
 import ThemeProvider from './context/ThemeContext'
-import { generatePersona } from './utils/personaGenerator'
+import { usePersonaStore } from './store/personaStore'
 
 function App() {
-  const [currentView, setCurrentView] = useState('home')
-  const [currentPersona, setCurrentPersona] = useState(null)
-  const [isGenerating, setIsGenerating] = useState(false)
+  const { currentView, currentPersona, hasVisited, setHasVisited } = usePersonaStore()
   const [showOnboarding, setShowOnboarding] = useState(false)
-  const [personaHistory, setPersonaHistory] = useState([])
 
   useEffect(() => {
-    // Vérifier si c'est la première visite
-    const hasVisited = localStorage.getItem('persona-generator-visited')
-    if (!hasVisited) {
-      setShowOnboarding(true)
-      localStorage.setItem('persona-generator-visited', 'true')
-    }
-
-    // Charger l'historique des personas
-    const savedHistory = localStorage.getItem('persona-history')
-    if (savedHistory) {
-      setPersonaHistory(JSON.parse(savedHistory))
-    }
+    // S'assure que le store est bien hydraté avant de vérifier
+    const unsubscribe = usePersonaStore.persist.onFinishHydration(() => {
+      const isFirstVisit = !usePersonaStore.getState().hasVisited
+      if (isFirstVisit) {
+        setShowOnboarding(true)
+      }
+    })
+    return unsubscribe
   }, [])
 
-  const handleGeneratePersona = async (filters = {}) => {
-    setIsGenerating(true)
-    
-    // Simulate generation time for better UX
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    const newPersona = await generatePersona(filters)
-    setCurrentPersona(newPersona)
-    
-    // Ajouter à l'historique
-    const updatedHistory = [newPersona, ...personaHistory.slice(0, 9)] // Garder les 10 derniers
-    setPersonaHistory(updatedHistory)
-    localStorage.setItem('persona-history', JSON.stringify(updatedHistory))
-    
-    setCurrentView('preview')
-    setIsGenerating(false)
-  }
-
-  const handleBackToHome = () => {
-    setCurrentView('home')
-    setCurrentPersona(null)
+  const handleCloseOnboarding = () => {
+    setShowOnboarding(false)
+    setHasVisited()
   }
 
   return (
@@ -63,15 +38,7 @@ function App() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <HomePage 
-                onGeneratePersona={handleGeneratePersona}
-                isGenerating={isGenerating}
-                personaHistory={personaHistory}
-                onSelectPersona={(persona) => {
-                  setCurrentPersona(persona)
-                  setCurrentView('preview')
-                }}
-              />
+              <HomePage />
             </motion.div>
           )}
           
@@ -83,18 +50,14 @@ function App() {
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.3 }}
             >
-              <PersonaPreview 
-                persona={currentPersona}
-                onBackToHome={handleBackToHome}
-                onGenerateNew={handleGeneratePersona}
-              />
+              <PersonaPreview />
             </motion.div>
           )}
         </AnimatePresence>
 
         <OnboardingModal 
           isOpen={showOnboarding}
-          onClose={() => setShowOnboarding(false)}
+          onClose={handleCloseOnboarding}
         />
       </div>
     </ThemeProvider>

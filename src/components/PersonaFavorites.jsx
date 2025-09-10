@@ -1,14 +1,16 @@
 import React from 'react'
 import { motion } from 'framer-motion'
-import { Eye } from 'lucide-react'
+import { Eye, Star } from 'lucide-react'
 
-const PersonaHistory = ({ personas, onSelectPersona }) => {
+const PersonaFavorites = ({ personas, onSelectPersona }) => {
   if (personas.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500 dark:text-gray-400">
-          Aucun persona dans l'historique. 
-          Commencez par en créer un !
+          Vous n'avez aucun persona en favori.
+        </p>
+        <p className="text-sm text-gray-400 dark:text-gray-500">
+          Cliquez sur l'étoile <Star className="w-3 h-3 inline-block text-yellow-500" /> pour en ajouter un.
         </p>
       </div>
     )
@@ -45,7 +47,10 @@ const PersonaHistory = ({ personas, onSelectPersona }) => {
             <span className="text-xs bg-secondary text-white px-2 py-1 rounded">
               {persona.sector}
             </span>
-            <Eye className="w-4 h-4 text-gray-400" />
+            <div className="flex items-center gap-2">
+              <Star className="w-4 h-4 text-yellow-400 fill-current" />
+              <Eye className="w-4 h-4 text-gray-400" />
+            </div>
           </div>
         </motion.div>
       ))}
@@ -53,4 +58,4 @@ const PersonaHistory = ({ personas, onSelectPersona }) => {
   )
 }
 
-export default PersonaHistory
+export default PersonaFavorites

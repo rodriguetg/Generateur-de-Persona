@@ -115,12 +115,12 @@ const generateAIAvatar = async () => {
       return response.url
     } else {
       // Fallback vers randomuser si l'API Pollination ne fonctionne pas
-      return `https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/portraits/${gender === 'male' ? 'men' : 'women'}/${faker.number.int({ min: 1, max: 99 })}.jpg`
+      return `https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/portraits/${gender === 'male' ? 'men' : 'women'}/${faker.number.int({ min: 1, max: 99 })}.jpg`
     }
   } catch (error) {
     // Fallback en cas d'erreur
     const gender = faker.person.sexType()
-    return `https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/portraits/${gender === 'male' ? 'men' : 'women'}/${faker.number.int({ min: 1, max: 99 })}.jpg`
+    return `https://img-wrapper.vercel.app/image?url=https://img-wrapper.vercel.app/image?url=https://randomuser.me/api/portraits/${gender === 'male' ? 'men' : 'women'}/${faker.number.int({ min: 1, max: 99 })}.jpg`
   }
 }
 
@@ -170,6 +170,7 @@ export const generatePersona = async (filters = {}) => {
   const photo = await generateAIAvatar()
 
   return {
+    id: faker.string.uuid(),
     name: `${firstName} ${lastName}`,
     age: age,
     ville: filters.location || faker.helpers.arrayElement(villes),
