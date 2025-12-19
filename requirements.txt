@@ -3,3 +3,4 @@ fpdf2==2.7.6
 Werkzeug==3.0.1
 Jinja2==3.1.2
 requests==2.31.0
+gunicorn==21.2.0
